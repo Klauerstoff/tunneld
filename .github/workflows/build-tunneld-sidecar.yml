@@ -60,7 +60,7 @@ jobs:
           labels: |
             org.opencontainers.image.title=tunneld-sidecar
           annotations: |
-            manifest:org.opencontainers.image.title=tunneld-sidecar
+            org.opencontainers.image.title=tunneld-sidecar
             
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
