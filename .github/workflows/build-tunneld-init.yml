@@ -1,4 +1,4 @@
-name: Build and push tunneld-sidecar image
+name: Build and push tunneld-init image
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -14,10 +14,10 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ajquack/tunneld/tunneld-sidecar
+  IMAGE_NAME: ajquack/tunneld/tunneld-init
 
 jobs:
-  build-and-push-image:
+  build-and-push-tunneld-init:
 
     runs-on: ubuntu-latest
     permissions:
@@ -54,17 +54,17 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           labels: |
-            org.opencontainers.image.title=tunneld-sidecar
+            org.opencontainers.image.title=tunneld-init
           annotations: |
-            org.opencontainers.image.title=tunneld-sidecar
+            org.opencontainers.image.title=tunneld-init
             
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
-      - name: Build and push tunneld-sidecar
+      - name: Build and push tunneld-init
         id: build-and-push
         uses: docker/build-push-action@v5
         with:
-          context: "{{defaultContext}}:tunneld-sidecar"
+          context: "{{defaultContext}}:tunneld-init"
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
