@@ -23,7 +23,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
+  build-and-push-image:
 
     runs-on: ubuntu-latest
     permissions:
@@ -59,7 +59,12 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
+          labels: |
+            org.opencontainers.image.title=tunneld-sidecar
+            org.opencontainers.image.version=latest
+          tags: |
+            ghcr.io/ajqauck/tunneld/tunneld-sidecar:latest
+            
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push tunneld-sidecar
