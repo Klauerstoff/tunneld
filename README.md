@@ -8,8 +8,8 @@ Example deplyoment for running the tunneld-sidecar container. The sidecar establ
 
 ## k8s secret
 The secret is used to configure the sidecar wireguard connection.
-
-`apiVersion: v1
+```
+apiVersion: v1
 kind: Secret
 metadata:
   name: example_name
@@ -23,12 +23,12 @@ data:
   endpoint_private: <private_ip_of_the_remote_endpoint>
   allowed_ips: <private_ip_of_the_remote_endpoint/32>
   persistent_keepalive: <persistent_keep_alive_timer>
-`
+```
 
 ## k8s deployment
 Example deployment which established a wireguard connection to a remote endpoint from the pod. The wireguard connection is configureg via env variables sourced from the secret
 
-`
+```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -113,4 +113,4 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "200m"
-`
+```
