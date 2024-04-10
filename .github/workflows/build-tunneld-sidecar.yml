@@ -6,11 +6,7 @@ name: Build and push Docker images
 # documentation.
 
 on:
-  schedule:
-    - cron: '0 0 * * SUN'
   push:
-    branches: [ "v*.*.*" ]
-    # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
   workflow_dispatch:
 
