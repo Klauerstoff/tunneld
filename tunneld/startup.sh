@@ -1,4 +1,5 @@
-# startup.sh
+#!/bin/sh
+
 # make sure errors stop execution
 set -e
 # start the cronjob
