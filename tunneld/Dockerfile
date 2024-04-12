@@ -12,7 +12,7 @@ RUN apk add --no-cache iptables iproute2 py3-kubernetes
 RUN chmod +x /usr/bin/masquerade-to-services.py && \
     echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
 
-RUN touch crontab.tmp \
+RUN touch crontab.tmp && touch /tmp/cron.log \
     && echo '* * * * * python3 /usr/bin/masquerade-to-services.py >> /tmp/cron.log 2>&1' > crontab.tmp \
     && crontab crontab.tmp \
     && rm -rf crontab.tmp
