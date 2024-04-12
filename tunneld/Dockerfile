@@ -9,7 +9,7 @@ COPY . /usr/bin/
 
 RUN apk add --no-cache iptables iproute2 py3-kubernetes
 
-RUN chmod +x /usr/bin/masquerade-to-services.py \
+RUN chmod +x /usr/bin/masquerade-to-services.py && \
     echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
 
 RUN touch crontab.tmp \
