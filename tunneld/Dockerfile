@@ -13,8 +13,8 @@ RUN chmod +x /usr/bin/masquerade-to-services.py && \
     echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
 
 RUN touch crontab.tmp \
-    && echo '* * * * * python3 /usr/bin/masquerade-to-services.py' > crontab.tmp \
+    && echo '* * * * * python3 /usr/bin/masquerade-to-services.py >> /tmp/cron.log 2>&1' > crontab.tmp \
     && crontab crontab.tmp \
     && rm -rf crontab.tmp
 
-CMD ["/usr/sbin/crond", "-f", "-d", "0"]
+ENTRYPOINT tail -f /tmp/cron.log
