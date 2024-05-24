@@ -2,11 +2,11 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-app-image:
+appImage:
   repository: "ghcr.io/ajquack/tunneld/tunneld"
   pullPolicy: IfNotPresent
   tag: "latest"
-sidecar-image:
+sidecarImage:
   repository: "ghcr.io/ajquack/tunneld/tunneld-sidecar"
   pullPolicy: IfNotPresent
   tag: "latest"
@@ -41,7 +41,7 @@ tunneld:
     enabled: true
     secretName: ""
 
-sidecar-securityContext:
+sidecarSecurityContext:
   allowPrivilegeEscalation: false
   capabilities:
     add: ["NET_ADMIN"]
@@ -50,7 +50,7 @@ sidecar-securityContext:
   runAsNonRoot: false
   runAsUser: 0
 
-app-securityContext:
+appSecurityContext:
   allowPrivilegeEscalation: false
   capabilities:
     add:
@@ -61,19 +61,7 @@ app-securityContext:
   runAsNonRoot: false
   runAsUser: 0
 
-sidecar-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-app-resources: {}
+appResources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following

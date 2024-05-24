@@ -25,14 +25,12 @@ spec:
       initContainers:
         - name: {{ include "tunneld.name" . }}-sidecar
           securityContext:
-            {{- toYaml .Values.sidecar-securityContext | nindent 12 }}
-          image: "{{ .Values.sidecar-image.repository }}:{{ .Values.sidecar-image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.sidecar-image.pullPolicy }}
+            {{- toYaml .Values.sidecarSecurityContext | nindent 12 }}
+          image: "{{ .Values.sidecarImage.repository }}:{{ .Values.sidecarImage.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.sidecarImage.pullPolicy }}
           command: ["sh", "-c"]
           args:
             - wg-init.sh
-          resources:
-            {{- toYaml .Values.sidecar-resources | nindent 12 }}
           volumeMounts:
             - name: {{ include "tunneld.name" . }}-config
               mountPath: /config
@@ -40,9 +38,9 @@ spec:
       containers:
         - name: {{ include "tunneld.name" . }}-app
           securityContext:
-            {{- toYaml .Values.app-securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+            {{- toYaml .Values.appSecurityContext | nindent 12 }}
+          image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.appImage.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
