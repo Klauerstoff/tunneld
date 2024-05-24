@@ -21,9 +21,9 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      serviceAccountName: {{ tunneld.name }}-service-reader
+      serviceAccountName: {{ include "tunneld.name" . }}-service-reader
       initContainers:
-        - name: {{ .tunneld.name }}-sidecar
+        - name: {{ include "tunneld.name" . }}-sidecar
           securityContext:
             {{- toYaml .Values.sidecar-securityContext | nindent 12 }}
           image: "{{ .Values.sidecar-image.repository }}:{{ .Values.sidecar-image.tag | default .Chart.AppVersion }}"
@@ -34,11 +34,11 @@ spec:
           resources:
             {{- toYaml .Values.sidecar-resources | nindent 12 }}
           volumeMounts:
-            - name: {{ .tunneld.name }}-config
+            - name: {{ include "tunneld.name" . }}-config
               mountPath: /config
               readOnly: true
       containers:
-        - name: {{ .tunneld.name }}-app
+        - name: {{ include "tunneld.name" . }}-app
           securityContext:
             {{- toYaml .Values.app-securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -50,17 +50,17 @@ spec:
             value: {{ .Values.tunneld.serviceLabelFilter }}
       {{- if and .Values.tunneld.config.enabled (not .Values.tunneld.existingSecret.enabled) }}
       volumes:
-        - name: {{ .tunneld.name }}-config
+        - name: {{ include "tunneld.name" . }}-config
           secret:
-            secretName: {{ .tunneld.name }}-secret
+            secretName: {{ include "tunneld.name" . }}-secret
       {{- else if and (not .Values.tunneld.config.enabled) .Values.tunneld.existingSecret.enabled }}
       volumes:
-        - name: {{ .tunneld.name }}-config
+        - name: {{ include "tunneld.name" . }}-config
           secret:
             secretName: {{ .Values.tunneld.existingSecret.secretName }}
       {{- else }}
       volumes:
-        - name: {{ .tunneld.name }}-config
+        - name: {{ include "tunneld.name" . }}-config
           emptyDir: {}
       {{- end }}
       {{- with .Values.nodeSelector }}

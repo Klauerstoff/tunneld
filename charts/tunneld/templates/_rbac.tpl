@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ tunneld.name }}-service-reader
+  name: {{ include "tunneld.name" . }}-service-reader
   namespace: {{ .Release.Namespace }}
 {{- end }}
 
@@ -10,7 +10,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ tunneld.name }}-service-reader
+  name: {{ include "tunneld.name" . }}-service-reader
 rules:
 - apiGroups: [""]
   resources: ["services"]
@@ -21,13 +21,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ tunneld.name }}-service-reader-rolebinding
+  name: {{ include "tunneld.name" . }}-service-reader-rolebinding
 subjects:
 - kind: ServiceAccount
-  name: {{ tunneld.name }}-service-reader
+  name: {{ include "tunneld.name" . }}-service-reader
   namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
-  name: {{ tunneld.name }}-service-reader
+  name: {{ include "tunneld.name" . }}-service-reader
   apiGroup: rbac.authorization.k8s.io
 {{- end }}
