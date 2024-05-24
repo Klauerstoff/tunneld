@@ -13,14 +13,14 @@ This means that the remote endpoint only has access to these labeled services an
 
 # Deployment with Helm
 
-## Add the helm repo
+## 1. Add the helm repo
 
 ```
 helm repo add tunneld https://ajquack.github.io/tunneld
 helm repo update
 ```
 
-## Create values.yaml for the helm release
+## 2. Create values.yaml for the helm release
 
 Please set the serviceLabelFilter value, otherwise no services will be reachable
 
@@ -29,14 +29,14 @@ tunneld:
   # Label used to determine which service should be reachable by tunneld peer eg. "tunneld=true"
   serviceLabelFilter: {{your-service-label-filter}}
 ```
+
 Also see <https://github.com/ajquack/tunneld/blob/main/charts/tunneld/values.yaml> for all configuration options
----
 
-## Wireguard configuration values for the Pod
+## 3. Wireguard configuration values for the Pod
 
-### Option 1: Create a secret before the helm release installation
+### 3.1 Option 1: Create a secret before the helm release installation
 
-#### Create a config.yaml file
+#### 3.1.1 Create a config.yaml file
 
 ```yaml
 internal:
@@ -53,13 +53,13 @@ wg:
     persistentKeepalive: 25
 ```
 
-#### Create the kubernetes secret from the config.yaml file
+#### 3.1.2 Create the kubernetes secret from the config.yaml file
 
 ```
 kubectl create secret generic {{secret-name}} -n {{desired-namespace}} --from-file=config.yaml
 ```
 
-#### Adjust the values.yaml for the helm release to use the existing secret
+#### 3.1.3 Adjust the values.yaml for the helm release to use the existing secret
 ```yaml
 tunneld:
   serviceLabelFilter: {{your-service-label-filter}}
@@ -67,9 +67,8 @@ tunneld:
     enabled: true
     secretName: {{secret-name}}
 ```
----
 
-### Option 2: Configure the release with the values.yaml
+### 3.2 Option 2: Configure the release with the values.yaml
 
 Just add all your config values to the values.yaml. The helm chart will create a secret for the values. The secret will then be mounted into the pod to become available for the sidecar container which creates the wireguard config. Keep in mind to disable existingSecret
 ```yaml
@@ -96,7 +95,7 @@ tunneld:
     enabled: false
 ```
 
-## Install the helm release
+## 4. Install the helm release
 
 ```
 helm install {{your-release-name}} tunneld/tunneld -n {{desired-namespace}} -f values.yaml
