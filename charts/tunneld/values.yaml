@@ -5,11 +5,11 @@
 appImage:
   repository: "ghcr.io/ajquack/tunneld/tunneld"
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: ""
 sidecarImage:
   repository: "ghcr.io/ajquack/tunneld/tunneld-sidecar"
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: ""
 
 nameOverride: ""
 fullnameOverride: ""
