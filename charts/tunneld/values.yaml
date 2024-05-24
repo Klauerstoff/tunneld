@@ -1,0 +1,92 @@
+# Default values for tunneld.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+app-image:
+  repository: "ghcr.io/ajquack/tunneld/tunneld"
+  pullPolicy: IfNotPresent
+  tag: "latest"
+sidecar-image:
+  repository: "ghcr.io/ajquack/tunneld/tunneld-sidecar"
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+
+replicaCount: 1
+
+tunneld:
+  # Label used to determine which service should be reachable by tunneld peer eg. "tunneld=true"
+  serviceLabelFilter: ""
+  # Required values if no existingSecret is provided. This will create a secret for tunneld to use as a config file
+  config:
+    enabled: false
+    values: |-
+      local:
+        config:
+          private-key:
+          private-ip:
+      peer:
+        config:
+          public-key:
+          public-ip:
+          private-ip:
+      wg:
+       config:
+         persistent-keepalive:
+  existingSecret:
+    enabled: true
+    secretName: ""
+
+sidecar-securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    add: ["NET_ADMIN"]
+    drop: ["ALL"]
+  runAsGroup: 0
+  runAsNonRoot: false
+  runAsUser: 0
+
+app-securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    add:
+      - NET_ADMIN
+      - SYS_MODULE
+    #drop: ["ALL"]
+  runAsGroup: 0
+  runAsNonRoot: false
+  runAsUser: 0
+
+sidecar-resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+app-resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

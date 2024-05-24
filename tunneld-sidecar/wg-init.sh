@@ -2,28 +2,28 @@
 
 ## Generate wg0.conf ##
 # Define variables from environment variables
-PRIVATE_KEY="$PRIVATE_KEY"
-ADDRESS="$ADDRESS"
-PEER_PUBLIC_KEY="$PEER_PUBLIC_KEY"
-ENDPOINT="$ENDPOINT"
-ALLOWED_IPS="$ALLOWED_IPS"
-PERSISTENT_KEEPALIVE="$PERSISTENT_KEEPALIVE"
+LOCAL_PRIVATE_KEY=$(yq e '.local.config.private-key' config.yaml)
+LOCAL_PRIVATE_IP=$(yq e '.local.config.private-ip' config.yaml)
+PEER_PUBLIC_KEY=$(yq e '.peer.config.public-key' config.yaml)
+PEER_PUBLIC_IP=$(yq e '.peer.config.public-ip' config.yaml)
+PEER_PRIVATE_IP=$(yq e '.peer.config.private-ip' config.yaml)
+CONFIG_PERSISTENT_KEEPALIVE=$(yq e '.wg.config.persistentKeepalive' config.yaml)
 
 # Write wg0.conf file
 cat <<EOF > /etc/wireguard/wg0.conf
 [Interface]
-PrivateKey = $PRIVATE_KEY
+PrivateKey = $LOCAL_PRIVATE_KEY
 
 [Peer]
 PublicKey = $PEER_PUBLIC_KEY
-Endpoint = $ENDPOINT
-AllowedIPs = $ALLOWED_IPS
-PersistentKeepalive = $PERSISTENT_KEEPALIVE
+Endpoint = $PEER_PUBLIC_IP
+AllowedIPs = $PEER_PRIVATE_IP
+PersistentKeepalive = $CONFIG_PERSISTENT_KEEPALIVE
 EOF
 echo "wg0.conf generated successfully."
 
 cat <<EOF > /etc/wireguard/wg0.address
-$ADDRESS
+$LOCAL_PRIVATE_IP
 EOF
 echo "wg0.address generated successfully."
 
@@ -53,7 +53,7 @@ echo "Setting wireguard interface mtu"
 ip link set mtu 1420 up dev wg0
 echo "Wireguard interface mtu set successfully."
 echo "Adding route to private endpoint IP"
-ip route add $ENDPOINT_PRIVATE dev wg0
+ip route add $PEER_PRIVATE_IP dev wg0
 echo "Route added successfully."
 
 echo "Wireguard interface configured and route added successfully."

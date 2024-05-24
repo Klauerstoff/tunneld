@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tunneld.fullname" . }}
+  labels:
+    {{- include "tunneld.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "tunneld.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "tunneld.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ tunneld.name }}-service-reader
+      initContainers:
+        - name: {{ .tunneld.name }}-sidecar
+          securityContext:
+            {{- toYaml .Values.sidecar-securityContext | nindent 12 }}
+          image: "{{ .Values.sidecar-image.repository }}:{{ .Values.sidecar-image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.sidecar-image.pullPolicy }}
+          command: ["sh", "-c"]
+          args:
+            - wg-init.sh
+          resources:
+            {{- toYaml .Values.sidecar-resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ .tunneld.name }}-config
+              mountPath: /config
+              readOnly: true
+      containers:
+        - name: {{ .tunneld.name }}-app
+          securityContext:
+            {{- toYaml .Values.app-securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+          - name: SERVICELABEL
+            value: {{ .Values.tunneld.serviceLabelFilter }}
+      {{- if and .Values.tunneld.config.enabled (not .Values.tunneld.existingSecret.enabled) }}
+      volumes:
+        - name: {{ .tunneld.name }}-config
+          secret:
+            secretName: {{ .tunneld.name }}-secret
+      {{- else if and (not .Values.tunneld.config.enabled) .Values.tunneld.existingSecret.enabled }}
+      volumes:
+        - name: {{ .tunneld.name }}-config
+          secret:
+            secretName: {{ .Values.tunneld.existingSecret.secretName }}
+      {{- else }}
+      volumes:
+        - name: {{ .tunneld.name }}-config
+          emptyDir: {}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
