@@ -45,8 +45,8 @@ internal:
     private-ip: 10.1.0.2/32
 peer:
   config:
-    public-ip: 123.456.789.012/32
     public-key: ucMvUSyuE8yVEQDWcskmRFtjcE959g
+    public-ip: 123.456.789.012:51820
     private-ip: 10.1.0.1/32
 wg:
   config:
@@ -81,16 +81,16 @@ tunneld:
     values: |-
       local:
         config:
-          private-key:
-          private-ip:
+          private-key: Ze4rNjahNIaXVYmbDO8krAg9OfpsDt
+          private-ip: 10.1.0.2/32
       peer:
         config:
-          public-key:
-          public-ip:
-          private-ip:
+          public-key: ucMvUSyuE8yVEQDWcskmRFtjcE959g
+          public-ip: 123.456.789.012:51820
+          private-ip: 10.1.0.1/32
       wg:
        config:
-         persistent-keepalive:
+         persistentKeepalive:
   existingSecret:
     enabled: false
 ```
