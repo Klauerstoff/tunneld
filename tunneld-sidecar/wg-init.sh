@@ -2,12 +2,12 @@
 
 ## Generate wg0.conf ##
 # Define variables from environment variables
-LOCAL_PRIVATE_KEY=$(yq e '.container-private-key' config.yaml)
-LOCAL_PRIVATE_IP=$(yq e '.container-private-ip' config.yaml)
-PEER_PUBLIC_KEY=$(yq e '.peer-public-key' config.yaml)
-PEER_PUBLIC_IP=$(yq e '.peer-public-ip' config.yaml)
-PEER_PRIVATE_IP=$(yq e '.peer-private-ip' config.yaml)
-CONFIG_PERSISTENT_KEEPALIVE=$(yq e '.config-persistent-keepalive' config.yaml)
+LOCAL_PRIVATE_KEY=$(yq e '.local.config.private-key' config.yaml)
+LOCAL_PRIVATE_IP=$(yq e '.local.config.private-ip' config.yaml)
+PEER_PUBLIC_KEY=$(yq e '.peer.config.public-key' config.yaml)
+PEER_PUBLIC_IP=$(yq e '.peer.config.public-ip' config.yaml)
+PEER_PRIVATE_IP=$(yq e '.peer.config.private-ip' config.yaml)
+CONFIG_PERSISTENT_KEEPALIVE=$(yq e '.wg.config.persistent-keepalive' config.yaml)
 
 # Write wg0.conf file
 cat <<EOF > /etc/wireguard/wg0.conf
