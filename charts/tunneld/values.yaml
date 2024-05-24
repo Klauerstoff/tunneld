@@ -36,7 +36,7 @@ tunneld:
           private-ip:
       wg:
        config:
-         persistent-keepalive:
+         persistentKeepalive:
   existingSecret:
     enabled: true
     secretName: ""
