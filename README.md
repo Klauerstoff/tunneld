@@ -1,116 +1,103 @@
 # tunneld
+---
 
-**Selfmade implementation of a cloudflare tunnel by running wireguard in k8s. Tunneld-sidecar is the prefered method. The remote enpoint as access to the pod running the sidecar and can therefore accesse eg. a Webservice.**
+POC of a method to make services running in a K8S cluster accessible via public internet. This POC should be a more privacy friendly alternative to cloudflare tunneling as the traffic between cluster and remote endpoint goes completely through wireguard. This means no unencrypted traffic that could possibly be read by Cloudflare.
+
+The tunneld pod connects via wireguard to a remote endpoint which could be a cheap VPS for example. This VPS then has access to certain K8S service resources in the cluster via the tunnel. This means that access to these services can be set up via the VPS.
+
+The implementation consists of two parts. An InitContainer, which creates the wireguard config and creates the corresponding interface in the pod. The second part is the actual daemon. A script runs within this second container, which uses a user-definable label to create iptables rules for the IPs of the corresponding labeled services.
+
+This means that the remote endpoint only has access to these labeled services and no other resources within the cluster.
 
 ---
 
-Example deplyoment for running the tunneld-sidecar container. The sidecar establishes a wireguard connection to an endpoint. The connection is accessible by all containers running in the pod. Only traffic comming from the remote endpoint is routed via the wireguard interface.
+# Deployment with Helm
 
-## k8s secret
-The secret is used to configure the sidecar wireguard connection.
-```
-apiVersion: v1
-kind: Secret
-metadata:
-  name: example_name
-  namespace: example_namespace
-type: Opaque
-data:
-  private_key: <private_key_of_the_wg_connection>
-  address: <private_ip_of_the_wg_connection/32>
-  peer_public_key: <public_key_of_the_remote_endpoint>
-  endpoint: <public_ip_of_the_remote_endpoint:port>
-  endpoint_private: <private_ip_of_the_remote_endpoint>
-  allowed_ips: <private_ip_of_the_remote_endpoint/32>
-  persistent_keepalive: <persistent_keep_alive_timer>
-```
-
-## k8s deployment
-Example deployment which established a wireguard connection to a remote endpoint from the pod. The wireguard connection is configureg via env variables sourced from the secret
+## Add the helm repo
 
 ```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: example_name
-  namespace: example_namespace
-  labels:
-    app: example_label
-spec:
-  selector:
-    matchLabels:
-      app: example_label
-  replicas: 1
-  strategy:
-    type: RollingUpdate
-  template:
-    metadata:
-      labels:
-        app: example_label
-    spec:
-      volumes:
-        - name: tunneld-conf
-          emptyDir: {}
-      initContainers:
-      - name: tunneld-sidecar
-        image: "ghcr.io/ajquack/tunneld/tunneld-sidecar:latest"
-        restartPolicy: Always
-        command: ["sh", "-c"]
-        args:
-          - wg-init.sh;
-            iptables -t nat -A POSTROUTING -d 10.43.0.10/32 -j MASQUERADE; #Example iptables rule to allow the remote endpoint to access kubedns
-        env:
-        - name: PRIVATE_KEY
-          valueFrom:
-            secretKeyRef:
-              name: tunneld-secret
-              key: private_key
-        - name: ADDRESS
-          valueFrom:
-            secretKeyRef:
-              name: tunneld-secret
-              key: address
-        - name: PEER_PUBLIC_KEY
-          valueFrom:
-            secretKeyRef:
-              name: tunneld-secret
-              key: peer_public_key
-        - name: ENDPOINT
-          valueFrom:
-            secretKeyRef:
-              name: tunneld-secret
-              key: endpoint
-        - name: ENDPOINT_PRIVATE
-          valueFrom:
-            secretKeyRef:
-              name: tunneld-secret
-              key: endpoint_private
-        - name: ALLOWED_IPS
-          valueFrom:
-            secretKeyRef:
-              name: tunneld-secret
-              key: allowed_ips
-        - name: PERSISTENT_KEEPALIVE
-          valueFrom:
-            secretKeyRef:
-              name: tunneld-secret
-              key: persistent_keepalive
-        securityContext:
-          capabilities:
-            add:
-              - NET_ADMIN
-              - SYS_MODULE
-          privileged: true
-      containers:
-      - name: webserver
-        image: ghcr.io/ajquack/docker-nginx-sample:latest
-        ports:
-        - containerPort: 80
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "100m"
-          limits:
-            memory: "128Mi"
-            cpu: "200m"
+helm repo add tunneld https://ajquack.github.io/tunneld
+helm repo update
+```
+
+## Create values.yaml for the helm release
+
+Please set the serviceLabelFilter value, otherwise no services will be reachable
+
+```yaml
+tunneld:
+  # Label used to determine which service should be reachable by tunneld peer eg. "tunneld=true"
+  serviceLabelFilter: {{your-service-label-filter}}
+```
+Also see <https://github.com/ajquack/tunneld/blob/main/charts/tunneld/values.yaml> for all configuration options
+---
+
+## Wireguard configuration values for the Pod
+
+### Option 1: Create a secret before the helm release installation
+
+#### Create a config.yaml file
+
+```yaml
+internal:
+  config:
+    private-key: Ze4rNjahNIaXVYmbDO8krAg9OfpsDt
+    private-ip: 10.1.0.2/32
+peer:
+  config:
+    public-ip: 123.456.789.012/32
+    public-key: ucMvUSyuE8yVEQDWcskmRFtjcE959g
+    private-ip: 10.1.0.1/32
+wg:
+  config:
+    persistentKeepalive: 25
+```
+
+#### Create the kubernetes secret from the config.yaml file
+
+```
+kubectl create secret generic {{secret-name}} -n {{desired-namespace}} --from-file=config.yaml
+```
+
+#### Adjust the values.yaml for the helm release to use the existing secret
+```yaml
+tunneld:
+  serviceLabelFilter: {{your-service-label-filter}}
+  existingSecret:
+    enabled: true
+    secretName: {{secret-name}}
+```
+---
+
+### Option 2: Configure the release with the values.yaml
+
+Just add all your config values to the values.yaml. The helm chart will create a secret for the values. The secret will then be mounted into the pod to become available for the sidecar container which creates the wireguard config. Keep in mind to disable existingSecret
+```yaml
+tunneld:
+  # Label used to determine which service should be reachable by tunneld peer eg. "tunneld=true"
+  serviceLabelFilter: {{your-service-label-filter}}
+  # Required values if no exisitingSecret is provided. This will create a secret for tunneld to use as a config file
+  config:
+    enabled: true
+    values: |-
+      local:
+        config:
+          private-key:
+          private-ip:
+      peer:
+        config:
+          public-key:
+          public-ip:
+          private-ip:
+      wg:
+       config:
+         persistent-keepalive:
+  existingSecret:
+    enabled: false
+```
+
+## Install the helm release
+
+```
+helm install {{your-release-name}} tunneld/tunneld -n {{desired-namespace}} -f values.yaml
 ```
