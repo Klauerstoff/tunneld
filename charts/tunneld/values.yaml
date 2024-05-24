@@ -21,9 +21,9 @@ replicaCount: 1
 tunneld:
   # Label used to determine which service should be reachable by tunneld peer eg. "tunneld=true"
   serviceLabelFilter: ""
-  # Required values if no exisitingSecret is provided. This will create a secret for tunneld to use as a config file
+  # Required values if no existingSecret is provided. This will create a secret for tunneld to use as a config file
   config:
-    enabled: true
+    enabled: false
     values: |-
       local:
         config:
@@ -37,8 +37,8 @@ tunneld:
       wg:
        config:
          persistent-keepalive:
-  exisitingSecret:
-    enabled: false
+  existingSecret:
+    enabled: true
     secretName: ""
 
 sidecar-securityContext:

@@ -48,16 +48,16 @@ spec:
           env:
           - name: SERVICELABEL
             value: {{ .Values.tunneld.serviceLabelFilter }}
-      {{- if and .Values.tunneld.config.enabled (not .Values.tunneld.exisitingSecret.enabled) }}
+      {{- if and .Values.tunneld.config.enabled (not .Values.tunneld.existingSecret.enabled) }}
       volumes:
         - name: {{ .tunneld.name }}-config
           secret:
             secretName: {{ .tunneld.name }}-secret
-      {{- else if and (not .Values.tunneld.config.enabled) .Values.tunneld.exisitingSecret.enabled }}
+      {{- else if and (not .Values.tunneld.config.enabled) .Values.tunneld.existingSecret.enabled }}
       volumes:
         - name: {{ .tunneld.name }}-config
           secret:
-            secretName: {{ .Values.tunneld.exisitingSecret.secretName }}
+            secretName: {{ .Values.tunneld.existingSecret.secretName }}
       {{- else }}
       volumes:
         - name: {{ .tunneld.name }}-config
