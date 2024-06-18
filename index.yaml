@@ -3,6 +3,16 @@ entries:
   tunneld:
   - apiVersion: v2
     appVersion: v2.0.2
+    created: "2024-06-18T21:03:35.933423925Z"
+    description: A Helm chart for Kubernetes
+    digest: 185c551aa714528f59dfaf893483f15e45cbe18225de2b4f3197753100ad0523
+    name: tunneld
+    type: application
+    urls:
+    - https://github.com/ajquack/tunneld/releases/download/tunneld-2.0.2/tunneld-2.0.2.tgz
+    version: 2.0.2
+  - apiVersion: v2
+    appVersion: v2.0.2
     created: "2024-05-24T18:11:34.075546542Z"
     description: A Helm chart for Kubernetes
     digest: 1c1b923fade20b0d6ee2b79cf167cddfcc5a06cd0856a8ab014046883afaa09a
@@ -91,4 +101,4 @@ entries:
     urls:
     - https://github.com/ajquack/tunneld/releases/download/tunneld-0.1.0/tunneld-0.1.0.tgz
     version: 0.1.0
-generated: "2024-05-24T18:11:34.075586857Z"
+generated: "2024-06-18T21:03:35.933462958Z"
