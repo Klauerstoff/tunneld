@@ -24,19 +24,20 @@ tunneld:
   # Required values if no existingSecret is provided. This will create a secret for tunneld to use as a config file
   config:
     enabled: false
-    values: |-
-      local:
-        config:
-          private-key:
-          private-ip:
-      peer:
-        config:
-          public-key:
-          public-ip:
-          private-ip:
-      wg:
-       config:
-         persistentKeepalive:
+    values: {}
+    #values: |-
+    #  local:
+    #    config:
+    #      private-key:
+    #      private-ip:
+    #  peer:
+    #    config:
+    #      public-key:
+    #      public-ip:
+    #      private-ip:
+    #  wg:
+    #   config:
+    #     persistentKeepalive:
   existingSecret:
     enabled: true
     secretName: ""
@@ -56,7 +57,6 @@ appSecurityContext:
     add:
       - NET_ADMIN
       - SYS_MODULE
-    #drop: ["ALL"]
   runAsGroup: 0
   runAsNonRoot: false
   runAsUser: 0
